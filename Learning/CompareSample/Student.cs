@@ -78,7 +78,64 @@ namespace Learning.CompareSample
         {
             return $@"ID:{this.Id},名前:{this.Name},数学:{this.MathScore},国語:{this.JapaneseScore},英語:{this.EnglishScore}";
         }
+        /// <summary>
+        /// Comparison<T>のサンプル。すべての評価で比較する
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        public static int CompareAllScore(Student x, Student y)
+        {
+            if (x == null)
+            {
+                if (y == null)
+                {
+                    // If x is null and y is null, they're
+                    // equal.
+                    return 0;
+                }
+                else
+                {
+                    // If x is null and y is not null, y
+                    // is greater.
+                    return -1;
+                }
+            }
+            else
+            {
+                // If x is not null...
+                //
+                if (y == null)
+                    // ...and y is null, x is greater.
+                {
+                    return 1;
+                }
+                else
+                {
+                    // すべての評価で比較
+                    var xSum = x.MathScore + x.JapaneseScore + x.EnglishScore;
+                    var ySum = y.MathScore + y.JapaneseScore + y.EnglishScore;
+                    return xSum.CompareTo(ySum);
+                }
+            }
 
+        }
+        /// <summary>
+        /// StudentEnglishScoreComarerが呼び出されるまでStudentEnglishScoreCompはインスタンス化しない
+        /// </summary>
+        private static Lazy<StudentEnglishScoreComp> studentEnglishScoreComarer = new Lazy<StudentEnglishScoreComp>(() => new StudentEnglishScoreComp()); 
+        public static IComparer<Student> StudentEnglishScoreComarer => studentEnglishScoreComarer.Value;
+
+        /// <summary>
+        /// 英語の評価で比較
+        /// </summary>
+        private class StudentEnglishScoreComp : IComparer<Student>
+        {
+            public int Compare(Student x, Student y)
+            {
+                return x.EnglishScore.CompareTo(y.EnglishScore);
+            }
+        }
     }
     /// <summary>
     /// Name比較
@@ -110,14 +167,5 @@ namespace Learning.CompareSample
             return x.JapaneseScore.CompareTo(y.JapaneseScore);
         }
     }
-    /// <summary>
-    /// 英語の評価で比較
-    /// </summary>
-    class StudentEnglishScoreComp : IComparer<Student>
-    {
-        public int Compare(Student x, Student y)
-        {
-            return x.EnglishScore.CompareTo(y.EnglishScore);
-        }
-    }
+    
 }

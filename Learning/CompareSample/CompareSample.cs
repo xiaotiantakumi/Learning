@@ -26,7 +26,7 @@ namespace Learning.CompareSample
 
             UseStudentIComparable(students);
 
-            // 標準のソートルール
+            // 標準のソートルール(IComparable<Student>が使われる)
             foreach (var student in students.OrderBy(x => x))
             {
                 Console.WriteLine(student.ToString());
@@ -57,11 +57,27 @@ namespace Learning.CompareSample
             }
 
             Console.WriteLine();
-            // 英語のソートルール(OrderByDescendingだと評価の高い順)
-            foreach (var student in students.OrderByDescending(x => x, new StudentEnglishScoreComp()))
+            // 英語のソートルール。Student内部のクラスとしてIComparer<Student>を用意している。
+            // この場合は、遅延実行してインスタンスを取得するほうがよい。
+            // (こちらもOrderByDescendingだと評価の高い順)
+            foreach (var student in students.OrderByDescending(x => x, Student.StudentEnglishScoreComarer))
             {
                 Console.WriteLine(student.ToString());
             }
+            Console.WriteLine();
+            // 数学，国語，英語の評価の合計で比較する。
+            // ここではComparison<T>のサンプル例として
+            // ちなみに、List<T>に実装されているSortを使うと、students自体の順番が変化する。
+            // students.OrderBy...だとstudentsは変化しません。
+            students.Sort(Student.CompareAllScore);
+            Console.WriteLine();
+
+            // ちなみに、上記ではstaticでStudent内部にComparison<T>を実装しましたが、以下のようにもできる。
+            students.Sort((x, y) =>
+            {
+                return 0;
+            } );
+
         }
         /// <summary>
         /// Studentに実装した非ジェネリック版のIComparableを使う
