@@ -6,7 +6,7 @@ namespace Learning.CompareSample
     /// <summary>
     /// 学生クラス
     /// </summary>
-    partial class Student : IComparable<Student>, IComparable
+    class Student : IComparable<Student>, IComparable
     {
         /// <summary>
         /// 学生番号
@@ -33,6 +33,11 @@ namespace Learning.CompareSample
         /// </summary>
         public int EnglishScore { get; }
         /// <summary>
+        /// テスト
+        /// </summary>
+        private int Hoge { get; }
+
+        /// <summary>
         /// ToString メソッドをオーバーライド
         /// </summary>
         /// <returns></returns>
@@ -42,33 +47,40 @@ namespace Learning.CompareSample
         }
 
         /// <summary>
-        /// 標準の比較ルール(IDで比較)
+        /// 標準の比較ルール(英語→IDの順で比較)
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
         public int CompareTo(Student other)
         {
-            return this.Id.CompareTo(other.Id);
+            var first = this.EnglishScore.CompareTo(other.EnglishScore);
+            if (first == 0)
+            {
+                return this.Id.CompareTo(other.Id);
+            }
+            return first;
         }
+
         /// <summary>
         /// 標準の比較ルール
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public int CompareTo(object? obj)
+        int IComparable.CompareTo(object obj)
         {
             if (obj == null) return 1;
 
             var other = obj as Student;
             if (other != null)
             {
-                return this.Id.CompareTo(other.Id);
+                return CompareTo(other);
             }
             else
             {
                 throw new ArgumentException("Object is not a Student");
             }
         }
+
         /// <summary>
         /// コンストラクタ
         /// </summary>
@@ -125,10 +137,19 @@ namespace Learning.CompareSample
             }
 
         }
+
         /// <summary>
         /// StudentEnglishScoreComarerが呼び出されるまでStudentEnglishScoreCompはインスタンス化しない
         /// </summary>
-        private static readonly Lazy<StudentEnglishScoreComparer> studentEnglishScoreComarer = new Lazy<StudentEnglishScoreComparer>(() => new StudentEnglishScoreComparer());
+        private static readonly Lazy<StudentEnglishScoreComparer> studentEnglishScoreComarer =
+            new Lazy<StudentEnglishScoreComparer>(() => new StudentEnglishScoreComparer());
+
         public static IComparer<Student> StudentEnglishScoreComarer => studentEnglishScoreComarer.Value;
+    }
+    /// <summary>
+    /// IComparable.CompareTo()の説明用
+    /// </summary>
+    class StudentDummy
+    {
     }
 }
