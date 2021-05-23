@@ -24,7 +24,14 @@ namespace Learning.CompareSample
             this._isWriteConsole = isWriteConsole;
             _sw = new System.Diagnostics.Stopwatch();
         }
-
+        public void LogElapsed(Action action)
+        {
+            var sw = new Stopwatch();
+            sw.Start();
+            action?.Invoke();
+            sw.Stop();
+            Console.WriteLine(sw.Elapsed.TotalMilliseconds);
+        }
         /// <summary>
         /// サンプルの実行
         /// </summary>
@@ -34,22 +41,27 @@ namespace Learning.CompareSample
             var objStudents = CreateArrayStudentObj();
 
             // IComparableが実行するところを確認する
-            SortObjStudents(objStudents);
+            LogElapsed(() => SortObjStudents(objStudents));
+            //SortObjStudents(objStudents);
 
             // IComparable<Student>を使う
-            SortGenericIComparable();
+            LogElapsed(() => SortGenericIComparable());
 
             // 名前でソート
-            SortByName();
+            LogElapsed(() => SortByName());
+
             // 数学でソート
-            SortByMath();
+            LogElapsed(() => SortByMath());
+
             // 国語でソート
-            SortByJapanese();
+            LogElapsed(() => SortByJapanese());
+
             // 英語でソート
-            SortByEnglishUseLazyComparer();
+            LogElapsed(() => SortByEnglishUseLazyComparer());
 
             // こちらはComparison<T>のサンプルとなります。
-            SortAllScoreUseComparison();
+            LogElapsed(() => SortAllScoreUseComparison());
+            
 
             // ちなみに、上記ではstaticでStudent内部にComparison<T>を実装しましたが、以下のようにラムダ式でも実装できる。
             // ところで以下の実装だとすべてが等しくなるので順序は変化しない。
@@ -85,13 +97,11 @@ namespace Learning.CompareSample
         /// <param name="objStudents"></param>
         private void SortObjStudents(ArrayList objStudents)
         {
-            _sw.Restart();
             // 標準のソートルール,IDで比較(IComparableが使われる)
             // StudentにIComparableを実装していないとSort()のタイミングでSystem.InvalidOperationExceptionが出る
             objStudents.Sort();
-            _sw.Stop();
-            Console.WriteLine(nameof(SortObjStudents) + ":" +_sw.Elapsed.TotalMilliseconds);
             var ret = objStudents.Cast<Student>();
+            Console.WriteLine(nameof(SortObjStudents));
             WriteSortResult(ret);
         }
 
@@ -100,13 +110,11 @@ namespace Learning.CompareSample
         /// </summary>
         private void SortGenericIComparable()
         {
-            _sw.Restart();
             // 標準のソートルール(IComparable<Student>が使われる)
             // ちなみに、List<T>に実装されているSortを使うと、students自体の順番が変化する。
             // students.OrderBy...だとstudentsは変化しません。
             _students.Sort();
-            _sw.Stop();
-            Console.WriteLine(nameof(SortGenericIComparable) + ":" + _sw.Elapsed.TotalMilliseconds);
+            Console.WriteLine(nameof(SortGenericIComparable));
             WriteSortResult(_students);
         }
 
@@ -115,12 +123,10 @@ namespace Learning.CompareSample
         /// </summary>
         private void SortByName()
         {
-            _sw.Restart();
             // 名前のソートルール　以下コメントアウトの方法でソートするとstudents自体の順番が並び変わってしまう
             //students.Sort(new StudentNameComp());
             var tmpStudent = _students.OrderBy(x => x, new StudentNameComp()).ToList();
-            _sw.Stop();
-            Console.WriteLine(nameof(SortByName) + ":" + _sw.Elapsed.TotalMilliseconds);
+            Console.WriteLine(nameof(SortByName));
             WriteSortResult(tmpStudent);
         }
 
@@ -129,12 +135,10 @@ namespace Learning.CompareSample
         /// </summary>
         private void SortByMath()
         {
-            _sw.Restart();
             // 数学のソートルール(OrderByだと評価の低い順)
             //students.Sort(new StudentMathScoreComp());
             var tmpStudent = _students.OrderBy(x => x, new StudentMathScoreComp()).ToList();
-            _sw.Stop();
-            Console.WriteLine(nameof(SortByMath) + ":" + _sw.Elapsed.TotalMilliseconds);
+            Console.WriteLine(nameof(SortByMath));
             WriteSortResult(tmpStudent);
         }
 
@@ -144,10 +148,8 @@ namespace Learning.CompareSample
         /// </summary>
         private void SortByJapanese()
         {
-            _sw.Restart();
             var tmpStudent = _students.OrderByDescending(x => x, new StudentJapaneseScoreComp()).ToList();
-            _sw.Stop();
-            Console.WriteLine(nameof(SortByJapanese) + ":" + _sw.Elapsed.TotalMilliseconds);
+            Console.WriteLine(nameof(SortByJapanese));
             WriteSortResult(tmpStudent);
         }
 
@@ -156,10 +158,8 @@ namespace Learning.CompareSample
         /// </summary>
         private void SortByEnglishUseLazyComparer()
         {
-            _sw.Restart();
             var tmpStudent = _students.OrderByDescending(x => x, Student.StudentEnglishScoreComarer).ToList();
-            _sw.Stop();
-            Console.WriteLine(nameof(SortByEnglishUseLazyComparer) + ":" + _sw.Elapsed.TotalMilliseconds);
+            Console.WriteLine(nameof(SortByEnglishUseLazyComparer));
             WriteSortResult(tmpStudent);
         }
 
@@ -168,10 +168,8 @@ namespace Learning.CompareSample
         /// </summary>
         private void SortAllScoreUseComparison()
         {
-            _sw.Restart();
             _students.Sort(Student.CompareAllScore);
-            _sw.Stop();
-            Console.WriteLine(nameof(SortAllScoreUseComparison) + ":" + _sw.Elapsed.TotalMilliseconds);
+            Console.WriteLine(nameof(SortAllScoreUseComparison));
             WriteSortResult(_students);
         }
 
